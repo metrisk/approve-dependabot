@@ -1,18 +1,42 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import * as github from '@actions/github'
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
+    core.startGroup('Checking actor is Dependabot')
+    if (process.env.GITHUB_ACTOR !== 'dependabot[bot]') {
+      core.warning('Actor is not dependabot!')
+      core.endGroup()
+      return
+    }
+    core.endGroup()
+    if (!process.env.GITHUB_TOKEN) {
+      core.setFailed('GITHUB_TOKEN environment variable not set')
+    }
+    const token = process.env.GITHUB_TOKEN as string;
+    const octo = github.getOctokit(token);
+    const event = require(`${process.env.GITHUB_EVENT_PATH}`)
+    if (!Object.keys(event).includes('pull_request')) {
+      core.setFailed('Not a Pull Request event')
+    }
+    const pull_number: number = event.number
+    const owner = event.repository.owner.login
+    const repo = event.repository.name
+    await core.group('Approving PR', async () => {
+      await octo.pulls.createReview({
+        owner,
+        repo,
+        pull_number,
+        event: 'APPROVE',
+        body: '@dependabot merge'
+      })
+    })
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    core.info('Approved')
+    return;
 
-    core.setOutput('time', new Date().toTimeString())
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(error)
   }
 }
 
