@@ -1,6 +1,67 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 896:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.buildApprovalRequest = void 0;
+function buildApprovalRequest(event) {
+    const actor = process.env.GITHUB_ACTOR;
+    return {
+        owner: event.repository.owner.login,
+        repo: event.repository.name,
+        pull_number: event.number,
+        event: 'APPROVE',
+        body: (actor === 'dependabot[bot]') ? '@dependabot merge' : `Approved @${actor}`
+    };
+}
+exports.buildApprovalRequest = buildApprovalRequest;
+
+
+/***/ }),
+
+/***/ 169:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.checkUser = void 0;
+const core = __importStar(__nccwpck_require__(186));
+const checkUser = () => {
+    var _a;
+    const user = (_a = core.getInput('user')) !== null && _a !== void 0 ? _a : 'dependabot[bot]';
+    const actor = process.env.GITHUB_ACTOR;
+    const result = actor === user;
+    return result;
+};
+exports.checkUser = checkUser;
+
+
+/***/ }),
+
 /***/ 109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -38,39 +99,29 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const github = __importStar(__nccwpck_require__(438));
+const buildApproveRequest_1 = __nccwpck_require__(896);
+const validateAction_1 = __nccwpck_require__(617);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            core.startGroup('Checking actor is Dependabot');
-            if (process.env.GITHUB_ACTOR !== 'dependabot[bot]') {
-                core.warning('Actor is not dependabot!');
-                core.endGroup();
+            const event = validateAction_1.validateAction();
+            if (!event)
                 return;
-            }
-            core.endGroup();
-            if (!process.env.GITHUB_TOKEN) {
-                core.setFailed('GITHUB_TOKEN environment variable not set');
-            }
             const token = process.env.GITHUB_TOKEN;
             const octo = github.getOctokit(token);
-            const event = require(`${process.env.GITHUB_EVENT_PATH}`);
-            if (!Object.keys(event).includes('pull_request')) {
-                core.setFailed('Not a Pull Request event');
-            }
-            const pull_number = event.number;
-            const owner = event.repository.owner.login;
-            const repo = event.repository.name;
-            yield core.group('Approving PR', () => __awaiter(this, void 0, void 0, function* () {
-                yield octo.pulls.createReview({
-                    owner,
-                    repo,
-                    pull_number,
-                    event: 'APPROVE',
-                    body: '@dependabot merge'
-                });
+            const approved = yield core.group('Approving PR', () => __awaiter(this, void 0, void 0, function* () {
+                const approveRequest = buildApproveRequest_1.buildApprovalRequest(event);
+                return yield octo.pulls.createReview(approveRequest);
             }));
-            core.info('Approved');
-            return;
+            if (approved.status === 200) {
+                core.info('Approved');
+                return;
+            }
+            else {
+                core.error(JSON.stringify(approved));
+                core.setFailed('Failed to approve the PR');
+                return;
+            }
         }
         catch (error) {
             core.setFailed(error);
@@ -79,6 +130,55 @@ function run() {
 }
 exports.run = run;
 run();
+
+
+/***/ }),
+
+/***/ 617:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.validateAction = void 0;
+const core = __importStar(__nccwpck_require__(186));
+const checkUser_1 = __nccwpck_require__(169);
+function validateAction() {
+    if (!checkUser_1.checkUser()) {
+        core.warning('Not the right user');
+        return false;
+    }
+    if (!process.env.GITHUB_TOKEN) {
+        core.setFailed('GITHUB_TOKEN environment variable not set');
+        return false;
+    }
+    const event = require(`${process.env.GITHUB_EVENT_PATH}`);
+    if (!Object.keys(event).includes('pull_request')) {
+        core.setFailed('Not a Pull Request event');
+        return false;
+    }
+    return event;
+}
+exports.validateAction = validateAction;
 
 
 /***/ }),
