@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 
 export const checkUser = () => {
-  const user = core.getInput('user') ?? 'dependabot[bot]'
+  const user = 'dependabot[bot]'
   const actor = process.env.GITHUB_ACTOR
-  core.info(`USER: ${user} / ACTOR: ${actor}`)
-  const result: boolean = actor === user
+  core.info(`USER ${user} / ACTOR ${actor}`)
+  const result: boolean = (actor === user)
   return result
 }

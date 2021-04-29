@@ -51,10 +51,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkUser = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const checkUser = () => {
-    var _a;
-    const user = (_a = core.getInput('user')) !== null && _a !== void 0 ? _a : 'dependabot[bot]';
+    const user = 'dependabot[bot]';
     const actor = process.env.GITHUB_ACTOR;
-    const result = actor === user;
+    core.info(`USER ${user} / ACTOR ${actor}`);
+    const result = (actor === user);
     return result;
 };
 exports.checkUser = checkUser;
