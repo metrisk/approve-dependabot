@@ -1,6 +1,8 @@
-post-commit:
+pre-commit:
   commands:
     build:
       run: npm run build
     package:
       run: npm run package
+    addBuild:
+      run: git add ./dist
