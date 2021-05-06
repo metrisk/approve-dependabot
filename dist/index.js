@@ -15,7 +15,7 @@ function buildApprovalRequest(event) {
         repo: event.repository.name,
         pull_number: event.number,
         event: 'APPROVE',
-        body: (actor === 'dependabot[bot]') ? '@dependabot merge' : `Approved @${actor}`
+        body: `Auto Approved :+1:`
     };
 }
 exports.buildApprovalRequest = buildApprovalRequest;
@@ -51,9 +51,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkUser = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const checkUser = () => {
-    const user = 'dependabot[bot]';
+    const input = core.getInput('user', {
+        required: false
+    });
+    const user = ((input === null || input === void 0 ? void 0 : input.length) > 0) ? input : 'dependabot[bot]';
     const actor = process.env.GITHUB_ACTOR;
-    core.info(`USER ${user} / ACTOR ${actor}`);
     const result = (actor === user);
     return result;
 };

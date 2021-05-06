@@ -1,0 +1,6 @@
+post-commit:
+  commands:
+    build:
+      run: npm run build
+    package:
+      run: npm run package
