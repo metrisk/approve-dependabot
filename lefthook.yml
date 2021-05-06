@@ -4,6 +4,4 @@ pre-commit:
     build:
       run: npm run build
     package:
-      run: npm run package
-    addBuild:
-      run: git add ./dist
+      run: npm run package && git add ./dist
