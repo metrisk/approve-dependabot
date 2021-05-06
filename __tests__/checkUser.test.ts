@@ -67,7 +67,7 @@ const expectedResults = [
 describe('checkUser', () => {
   let mockCore: jest.SpyInstance<string, [name: string, options?: core.InputOptions]>;
   const oldPE = process.env
-  let mockPE
+  let mockPE: unknown
   beforeEach(() => {
     mockCore = jest.spyOn(core, 'getInput')
     process.env = { ...oldPE }

@@ -11,7 +11,7 @@ describe('buildApprovalRequest', () => {
       process.env = { ...oldPE }
       process.env.GITHUB_ACTOR = 'MF_GRIMM'
       expected = {
-        "body": "Approved @MF_GRIMM",
+        "body": "Auto Approved :+1:",
         "event": "APPROVE",
         "owner": "MF_GRIMM",
         "pull_number": 1,
@@ -46,7 +46,7 @@ describe('buildApprovalRequest', () => {
       process.env = { ...oldPE }
       process.env.GITHUB_ACTOR = 'dependabot[bot]'
       expected = {
-        "body": "@dependabot merge",
+        "body": "Auto Approved :+1:",
         "event": "APPROVE",
         "owner": "MF_GRIMM",
         "pull_number": 1,

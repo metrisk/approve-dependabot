@@ -8,6 +8,6 @@ export function buildApprovalRequest(event: PullRequestEvent): RequestParameters
     repo: event.repository.name,
     pull_number: event.number,
     event: 'APPROVE',
-    body: (actor === 'dependabot[bot]') ? '@dependabot merge' : `Approved @${actor}`
+    body: `Auto Approved :+1:`
   }
 }
