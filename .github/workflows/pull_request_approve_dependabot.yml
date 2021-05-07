@@ -1,0 +1,12 @@
+on:
+  workflow_run:
+    workflows: ["PR - Unit Tests"]
+    types: [completed]
+name: Approve Dependabot PR
+jobs:
+  auto-approve:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.actor == 'dependabot[bot]' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Approve PR
+        uses: ./

@@ -1,0 +1,61 @@
+on: pull_request
+name: PR - Unit Tests
+jobs:
+  commitlint:
+    name: Execute commitlint against PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: npm cache
+        id: npm-cache
+        uses: actions/cache@v2.1.5
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - uses: actions/setup-node@v2.1.5
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Install Deps if no cache
+        if: steps.npm-cache.outputs.cache-hit != true
+        run: npm ci
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Get Event Data
+        id: get-event
+        run: |
+          content=`cat $GITHUB_EVENT_PATH`
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo "::set-output name=eventdata::$content"
+      - name: Lint PR title
+        run: |
+          echo "${{ fromJson(steps.get-event.outputs.eventdata).pull_request.title}}" | npx commitlint
+  unittests:
+    name: Running the unit tests
+    runs-on: ubuntu-latest
+    needs: commitlint
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: npm cache
+        id: npm-cache
+        uses: actions/cache@v2.1.5
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - uses: actions/setup-node@v2.1.5
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Install Deps if no cache
+        if: steps.npm-cache.outputs.cache-hit != true
+        run: npm ci
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Execute the tests
+        run: npm run test
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

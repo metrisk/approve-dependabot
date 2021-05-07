@@ -1,19 +1,31 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import * as github from '@actions/github'
+import { buildApprovalRequest } from './buildApproveRequest'
+import { validateAction } from './validateAction'
 
-async function run(): Promise<void> {
+export async function run (): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
+    const event = validateAction()
+    if (event === false) return
+    const token = process.env.GITHUB_TOKEN as string
+    const octo = github.getOctokit(token)
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
+    const approved = await core.group('Approving PR', async () => {
+      const approveRequest = buildApprovalRequest(event)
+      return await octo.pulls.createReview(approveRequest)
+    })
+    if (approved.status === 200) {
+      core.info('Approved')
+      return
+    } else {
+      core.error(JSON.stringify(approved))
+      core.setFailed('Failed to approve the PR')
+      return
+    }
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(error)
   }
 }
 
+// eslint-disable-next-line
 run()

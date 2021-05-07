@@ -1,0 +1,7 @@
+pre-commit:
+  paralled: false
+  commands:
+    build:
+      run: npm run build
+    package:
+      run: npm run package && git add ./dist
