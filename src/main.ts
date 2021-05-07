@@ -3,13 +3,12 @@ import * as github from '@actions/github'
 import { buildApprovalRequest } from './buildApproveRequest'
 import { validateAction } from './validateAction'
 
-
-export async function run(): Promise<void> {
+export async function run (): Promise<void> {
   try {
     const event = validateAction()
-    if (!event) return
-    const token = process.env.GITHUB_TOKEN as string;
-    const octo = github.getOctokit(token);
+    if (event === false) return
+    const token = process.env.GITHUB_TOKEN as string
+    const octo = github.getOctokit(token)
 
     const approved = await core.group('Approving PR', async () => {
       const approveRequest = buildApprovalRequest(event)
@@ -17,7 +16,7 @@ export async function run(): Promise<void> {
     })
     if (approved.status === 200) {
       core.info('Approved')
-      return;
+      return
     } else {
       core.error(JSON.stringify(approved))
       core.setFailed('Failed to approve the PR')
@@ -28,4 +27,5 @@ export async function run(): Promise<void> {
   }
 }
 
+// eslint-disable-next-line
 run()

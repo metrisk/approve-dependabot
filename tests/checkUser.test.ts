@@ -1,4 +1,4 @@
-import { checkUser } from '../src/checkUser'
+import {checkUser} from '../src/checkUser'
 import * as core from '@actions/core'
 
 const expectedResults = [
@@ -29,7 +29,7 @@ const expectedResults = [
         actor: 'VIKTOR_VAUGHAN',
         inputUser: 'dependabot[bot]',
         result: false
-      },
+      }
     ]
   },
   {
@@ -59,24 +59,27 @@ const expectedResults = [
         actor: 'ZEV_LOVE_X',
         inputUser: 'dependabot[bot]',
         result: false
-      },
+      }
     ]
-  },
+  }
 ]
 
 describe('checkUser', () => {
-  let mockCore: jest.SpyInstance<string, [name: string, options?: core.InputOptions]>;
+  let mockCore: jest.SpyInstance<
+    string,
+    [name: string, options?: core.InputOptions]
+  >
   const oldPE = process.env
   let mockPE: unknown
   beforeEach(() => {
     mockCore = jest.spyOn(core, 'getInput')
-    process.env = { ...oldPE }
+    process.env = {...oldPE}
   })
   afterEach(() => {
     mockCore.mockRestore()
     process.env = oldPE
   })
-  expectedResults.forEach((users) => {
+  expectedResults.forEach(users => {
     describe(users.user, () => {
       users.results.forEach(result => {
         test(`when actor: ${result.actor} and inputUser: ${result.inputUser} then result: ${result.result}`, () => {

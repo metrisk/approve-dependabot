@@ -1,21 +1,29 @@
-import { Endpoints, RequestParameters } from '@octokit/types';
-import { buildApprovalRequest } from '../src/buildApproveRequest'
+import {Endpoints, RequestParameters} from '@octokit/types'
+import {buildApprovalRequest} from '../src/buildApproveRequest'
 const event = require('./pr.json')
 describe('buildApprovalRequest', () => {
-  let result: RequestParameters & Omit<Endpoints["POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews"]["parameters"], "baseUrl" | "headers" | "mediaType">
+  let result: RequestParameters &
+    Omit<
+      Endpoints['POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews']['parameters'],
+      'baseUrl' | 'headers' | 'mediaType'
+    >
 
-  let expected: RequestParameters & Omit<Endpoints["POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews"]["parameters"], "baseUrl" | "headers" | "mediaType">
+  let expected: RequestParameters &
+    Omit<
+      Endpoints['POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews']['parameters'],
+      'baseUrl' | 'headers' | 'mediaType'
+    >
   const oldPE = process.env
   describe('when actor is not dependabot', () => {
     beforeEach(() => {
-      process.env = { ...oldPE }
+      process.env = {...oldPE}
       process.env.GITHUB_ACTOR = 'MF_GRIMM'
       expected = {
-        "body": "Auto Approved :+1:",
-        "event": "APPROVE",
-        "owner": "MF_GRIMM",
-        "pull_number": 1,
-        "repo": "TEST"
+        body: 'Auto Approved :+1:',
+        event: 'APPROVE',
+        owner: 'MF_GRIMM',
+        pull_number: 1,
+        repo: 'TEST'
       }
       result = buildApprovalRequest(event)
     })
@@ -43,14 +51,14 @@ describe('buildApprovalRequest', () => {
   })
   describe('when actor is dependabot', () => {
     beforeEach(() => {
-      process.env = { ...oldPE }
+      process.env = {...oldPE}
       process.env.GITHUB_ACTOR = 'dependabot[bot]'
       expected = {
-        "body": "Auto Approved :+1:",
-        "event": "APPROVE",
-        "owner": "MF_GRIMM",
-        "pull_number": 1,
-        "repo": "TEST"
+        body: 'Auto Approved :+1:',
+        event: 'APPROVE',
+        owner: 'MF_GRIMM',
+        pull_number: 1,
+        repo: 'TEST'
       }
       result = buildApprovalRequest(event)
     })

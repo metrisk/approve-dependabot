@@ -9,13 +9,12 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.buildApprovalRequest = void 0;
 function buildApprovalRequest(event) {
-    const actor = process.env.GITHUB_ACTOR;
     return {
         owner: event.repository.owner.login,
         repo: event.repository.name,
         pull_number: event.number,
         event: 'APPROVE',
-        body: `Auto Approved :+1:`
+        body: 'Auto Approved :+1:'
     };
 }
 exports.buildApprovalRequest = buildApprovalRequest;
@@ -54,9 +53,9 @@ const checkUser = () => {
     const input = core.getInput('user', {
         required: false
     });
-    const user = ((input === null || input === void 0 ? void 0 : input.length) > 0) ? input : 'dependabot[bot]';
+    const user = (input === null || input === void 0 ? void 0 : input.length) > 0 ? input : 'dependabot[bot]';
     const actor = process.env.GITHUB_ACTOR;
-    const result = (actor === user);
+    const result = actor === user;
     return result;
 };
 exports.checkUser = checkUser;
@@ -107,7 +106,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const event = validateAction_1.validateAction();
-            if (!event)
+            if (event === false)
                 return;
             const token = process.env.GITHUB_TOKEN;
             const octo = github.getOctokit(token);
@@ -131,6 +130,7 @@ function run() {
     });
 }
 exports.run = run;
+// eslint-disable-next-line
 run();
 
 
@@ -169,10 +169,11 @@ function validateAction() {
         core.warning('Not the right user');
         return false;
     }
-    if (!process.env.GITHUB_TOKEN) {
+    if (typeof process.env.GITHUB_TOKEN !== 'string') {
         core.setFailed('GITHUB_TOKEN environment variable not set');
         return false;
     }
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const event = require(`${process.env.GITHUB_EVENT_PATH}`);
     if (!Object.keys(event).includes('pull_request')) {
         core.setFailed('Not a Pull Request event');
@@ -1648,7 +1649,7 @@ exports.Octokit = Octokit;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var isPlainObject = __nccwpck_require__(558);
+var isPlainObject = __nccwpck_require__(287);
 var universalUserAgent = __nccwpck_require__(429);
 
 function lowercaseKeys(object) {
@@ -2034,52 +2035,6 @@ const endpoint = withDefaults(null, DEFAULTS);
 
 exports.endpoint = endpoint;
 //# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ 558:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-/*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-function isObject(o) {
-  return Object.prototype.toString.call(o) === '[object Object]';
-}
-
-function isPlainObject(o) {
-  var ctor,prot;
-
-  if (isObject(o) === false) return false;
-
-  // If has modified constructor
-  ctor = o.constructor;
-  if (ctor === undefined) return true;
-
-  // If has modified prototype
-  prot = ctor.prototype;
-  if (isObject(prot) === false) return false;
-
-  // If constructor does not have an Object-specific method
-  if (prot.hasOwnProperty('isPrototypeOf') === false) {
-    return false;
-  }
-
-  // Most likely a plain Object
-  return true;
-}
-
-exports.isPlainObject = isPlainObject;
 
 
 /***/ }),
@@ -3672,7 +3627,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var endpoint = __nccwpck_require__(440);
 var universalUserAgent = __nccwpck_require__(429);
-var isPlainObject = __nccwpck_require__(62);
+var isPlainObject = __nccwpck_require__(287);
 var nodeFetch = _interopDefault(__nccwpck_require__(467));
 var requestError = __nccwpck_require__(537);
 
@@ -3814,52 +3769,6 @@ const request = withDefaults(endpoint.endpoint, {
 
 exports.request = request;
 //# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ 62:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-/*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-function isObject(o) {
-  return Object.prototype.toString.call(o) === '[object Object]';
-}
-
-function isPlainObject(o) {
-  var ctor,prot;
-
-  if (isObject(o) === false) return false;
-
-  // If has modified constructor
-  ctor = o.constructor;
-  if (ctor === undefined) return true;
-
-  // If has modified prototype
-  prot = ctor.prototype;
-  if (isObject(prot) === false) return false;
-
-  // If constructor does not have an Object-specific method
-  if (prot.hasOwnProperty('isPrototypeOf') === false) {
-    return false;
-  }
-
-  // Most likely a plain Object
-  return true;
-}
-
-exports.isPlainObject = isPlainObject;
 
 
 /***/ }),
@@ -4065,6 +3974,52 @@ class Deprecation extends Error {
 }
 
 exports.Deprecation = Deprecation;
+
+
+/***/ }),
+
+/***/ 287:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObject(o) {
+  return Object.prototype.toString.call(o) === '[object Object]';
+}
+
+function isPlainObject(o) {
+  var ctor,prot;
+
+  if (isObject(o) === false) return false;
+
+  // If has modified constructor
+  ctor = o.constructor;
+  if (ctor === undefined) return true;
+
+  // If has modified prototype
+  prot = ctor.prototype;
+  if (isObject(prot) === false) return false;
+
+  // If constructor does not have an Object-specific method
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  }
+
+  // Most likely a plain Object
+  return true;
+}
+
+exports.isPlainObject = isPlainObject;
 
 
 /***/ }),

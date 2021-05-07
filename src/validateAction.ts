@@ -7,11 +7,13 @@ export function validateAction(): false | PullRequestEvent {
     core.warning('Not the right user')
     return false
   }
-  if (!process.env.GITHUB_TOKEN) {
+  if (typeof process.env.GITHUB_TOKEN !== 'string') {
     core.setFailed('GITHUB_TOKEN environment variable not set')
     return false
   }
-  const event: WebhookEvent = require(`${process.env.GITHUB_EVENT_PATH}`)
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const event: WebhookEvent = require(`${process.env.GITHUB_EVENT_PATH as string}`)
+
   if (!Object.keys(event).includes('pull_request')) {
     core.setFailed('Not a Pull Request event')
     return false
