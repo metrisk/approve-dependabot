@@ -41,7 +41,7 @@
     "@swc-node/jest": "1.2.1",
     "@types/jest": "26.0.23",
     "@types/node": "15.0.2",
-    "@typescript-eslint/parser": "4.22.1",
+    "@typescript-eslint/parser": "4.25.0",
     "@vercel/ncc": "0.28.5",
     "commitizen": "4.2.3",
     "cz-conventional-changelog": "3.3.0",
