@@ -1,6 +1,6 @@
-import {validateAction} from '../src/validateAction'
+import { validateAction } from '../src/validateAction'
 import * as Check from '../src/checkUser'
-import {PullRequestEvent} from '@octokit/webhooks-types'
+import { PullRequestEvent, WorkflowRunCompletedEvent } from '@octokit/webhooks-types'
 import path from 'path'
 
 describe('validateAction', (): void => {
@@ -13,11 +13,11 @@ describe('validateAction', (): void => {
       cb?: (err?: Error) => void
     ]
   >
-  let result: boolean | PullRequestEvent
+  let result: boolean | PullRequestEvent | WorkflowRunCompletedEvent
   const oldPE = process.env
   beforeEach(() => {
     mockStdOut = jest.spyOn(process.stdout, 'write')
-    process.env = {...oldPE}
+    process.env = { ...oldPE }
   })
   afterEach(() => {
     process.env = oldPE
@@ -81,7 +81,7 @@ describe('validateAction', (): void => {
     test('writes to stdout with an error message', () => {
       expect(mockStdOut).toHaveBeenCalledTimes(1)
       expect(mockStdOut).toHaveBeenCalledWith(
-        '::error::Not a Pull Request event\n'
+        '::error::Not the correct event type\n'
       )
     })
     test('returns false', () => {
@@ -106,6 +106,7 @@ describe('validateAction', (): void => {
     })
     test('returns the event', () => {
       const event = require('./pr.json')
+      console.log(result)
       expect(result).toStrictEqual(event)
     })
   })

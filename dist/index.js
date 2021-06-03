@@ -182,9 +182,8 @@ function validateAction() {
     }
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const event = require(`${process.env.GITHUB_EVENT_PATH}`);
-    const eventKeys = Object.keys(event);
-    if (!eventKeys.includes('pull_request_target') || eventKeys.includes('workflow_run')) {
-        core.setFailed('Not a Pull Request event');
+    if (event.number === undefined && event.workflow === undefined) {
+        core.setFailed('Not the correct event type');
         return false;
     }
     return event;

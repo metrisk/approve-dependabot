@@ -14,9 +14,8 @@ export function validateAction(): false | PullRequestEvent | WorkflowRunComplete
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const event: WebhookEvent = require(`${process.env.GITHUB_EVENT_PATH as string}`)
 
-  const eventKeys = Object.keys(event)
-  if (!eventKeys.includes('pull_request_target') || eventKeys.includes('workflow_run')) {
-    core.setFailed('Not a Pull Request event')
+  if ((<PullRequestEvent>event).number === undefined && (<WorkflowRunCompletedEvent>event).workflow === undefined) {
+    core.setFailed('Not the correct event type')
     return false
   }
   return event as PullRequestEvent | WorkflowRunCompletedEvent
