@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@arkweid/lefthook": "0.7.4",
-    "@commitlint/cli": "12.1.1",
+    "@commitlint/cli": "12.1.4",
     "@commitlint/config-conventional": "12.1.1",
     "@octokit/types": "6.14.2",
     "@octokit/webhooks": "9.4.0",
