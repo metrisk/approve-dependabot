@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
-import { WebhookEvent, PullRequestEvent } from '@octokit/webhooks-types'
+import { WebhookEvent, PullRequestEvent, WorkflowRunCompletedEvent } from '@octokit/webhooks-types'
 import { checkUser } from './checkUser'
 
-export function validateAction(): false | PullRequestEvent {
+export function validateAction(): false | PullRequestEvent | WorkflowRunCompletedEvent {
   if (!checkUser()) {
     core.warning('Not the right user')
     return false
@@ -14,9 +14,10 @@ export function validateAction(): false | PullRequestEvent {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const event: WebhookEvent = require(`${process.env.GITHUB_EVENT_PATH as string}`)
 
-  if (!Object.keys(event).includes('pull_request')) {
+  const eventKeys = Object.keys(event)
+  if (!eventKeys.includes('pull_request_target') || eventKeys.includes('workflow_run')) {
     core.setFailed('Not a Pull Request event')
     return false
   }
-  return event as PullRequestEvent
+  return event as PullRequestEvent | WorkflowRunCompletedEvent
 }

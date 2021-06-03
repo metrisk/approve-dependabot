@@ -9,10 +9,17 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.buildApprovalRequest = void 0;
 function buildApprovalRequest(event) {
+    let pull_number;
+    if (event.number) {
+        pull_number = event.number;
+    }
+    else {
+        pull_number = event.workflow_run.pull_requests[0].number;
+    }
     return {
         owner: event.repository.owner.login,
         repo: event.repository.name,
-        pull_number: event.number,
+        pull_number,
         event: 'APPROVE',
         body: 'Auto Approved :+1:'
     };
@@ -175,7 +182,8 @@ function validateAction() {
     }
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const event = require(`${process.env.GITHUB_EVENT_PATH}`);
-    if (!Object.keys(event).includes('pull_request')) {
+    const eventKeys = Object.keys(event);
+    if (!eventKeys.includes('pull_request_target') || eventKeys.includes('workflow_run')) {
         core.setFailed('Not a Pull Request event');
         return false;
     }
